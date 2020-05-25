@@ -1,0 +1,101 @@
+﻿<Window x:Class="FileSpy.View.FileSpyWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FileSpy.View"
+        mc:Ignorable="d"
+        Title="File Spy" Height="450" Width="800"
+        SizeToContent="WidthAndHeight"
+        >
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Label Content="Root Folder:"
+               Grid.Row="0" Grid.Column="0"
+               Style="{StaticResource BaseLabelStyle}"
+               />
+        <TextBox Grid.Row="0" Grid.Column="1"
+                 MinWidth="200" Margin="5"
+                 Style="{StaticResource BaseTextBoxStyle}"
+                 Text="{Binding RootPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 >
+            <TextBox.InputBindings>
+                <MouseBinding Command="{Binding GetRootPathCommand}" MouseAction="LeftClick"/>
+            </TextBox.InputBindings>
+        </TextBox>
+        <Label Content="Search Pattern"
+            Grid.Row="1" Grid.Column="0"
+            Style="{StaticResource BaseLabelStyle}"
+            />
+        <TextBox Grid.Row="1" Grid.Column="1"
+                 Width="200" Margin="5"
+                 Style="{StaticResource BaseTextBoxStyle}"
+                 />
+        <Label Content="Logged Metadata:"
+               Grid.Row="2" Grid.Column="0"
+               Style="{StaticResource BaseLabelStyle}"
+               />
+        <TextBox Grid.Row="2" Grid.Column="1"
+                 Width="200" Margin="5"
+                 Style="{StaticResource BaseTextBoxStyle}"
+                 />
+        <Label Content="Output File Name:"
+               Grid.Row="3" Grid.Column="0"
+               Style="{StaticResource BaseLabelStyle}"
+               />
+        <TextBox Grid.Row="3" Grid.Column="1"
+                 Width="200" Margin="5"
+                 Style="{StaticResource BaseTextBoxStyle}"
+                 />
+        <Label Content="Output Folder:"
+               Grid.Row="4" Grid.Column="0"
+               Style="{StaticResource BaseLabelStyle}"
+               />
+        <TextBox Grid.Row="4" Grid.Column="1"
+                 MinWidth="200" Margin="5"
+                 Style="{StaticResource BaseTextBoxStyle}"
+                 Text="{Binding DestinationPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 >
+            <TextBox.InputBindings>
+                <MouseBinding Command="{Binding GetDestinationPathCommand}" MouseAction="LeftClick"/>
+            </TextBox.InputBindings>
+        </TextBox>
+        <Border Style="{StaticResource CoralBorderStyle}" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Content="Scan" Grid.Column="0" 
+                        FontSize="25" Margin="5"
+                        Width="100"/>
+                <fa:ImageAwesome Icon="Cog" Width="30"
+                                 Grid.Column="1"
+                         HorizontalAlignment="center"
+                         />
+                <Label Content="Task:" Style="{StaticResource BaseLabelStyle}"
+                   HorizontalAlignment="Center"
+                   Grid.Column="2"
+                   />
+                <Label Content="No task in Progress" Style="{StaticResource BaseLabelStyle}" HorizontalAlignment="Left"
+                    Grid.Row="0" Grid.Column="3"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

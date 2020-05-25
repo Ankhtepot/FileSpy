@@ -1,0 +1,21 @@
+﻿<Application x:Class="FileSpy.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:FileSpy"
+             StartupUri="View/FileSpyWindow.xaml">
+    <Application.Resources>
+        <Style TargetType="Label" x:Key="BaseLabelStyle">
+            <Setter Property="FontSize" Value="25"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <Style TargetType="TextBox" x:Key="BaseTextBoxStyle">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+        <Style TargetType="Border" x:Key="CoralBorderStyle">
+            <Setter Property="BorderBrush" Value="Coral"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="3"/>
+        </Style>
+    </Application.Resources>
+</Application>
