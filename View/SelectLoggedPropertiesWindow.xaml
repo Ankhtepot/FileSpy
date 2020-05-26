@@ -1,0 +1,70 @@
+﻿<Window x:Class="FileSpy.View.SelectLoggedPropertiesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FileSpy.View"
+        mc:Ignorable="d"
+        Title="Select Logged Properties" Height="221" Width="289"
+        SizeToContent="WidthAndHeight"
+        >
+
+    <Grid x:Name="TopContainer">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0" 
+               Content="Log File version:"
+               Style="{StaticResource BaseLabelStyle}"
+               />
+        <Viewbox Grid.Row="0" Grid.Column="1" Height="25" Margin="5">
+            <CheckBox HorizontalAlignment="Center"
+                      Name="LogFileVersionCheckBox"
+                      IsChecked="{Binding LogFileVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      />
+        </Viewbox>
+
+        <Label Grid.Row="1" Grid.Column="0" 
+               Content="Log Product Version:"
+               Style="{StaticResource BaseLabelStyle}"
+               />
+        <Viewbox Grid.Row="1" Grid.Column="1" Height="25" Margin="5">
+            <CheckBox HorizontalAlignment="Center"
+                      Name="LogProductionVersionCheckBox"
+                      IsChecked="{Binding LogProductVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      />
+        </Viewbox> 
+        <!--<ListView x:Name="MainListView"
+                  ItemsSource="{Binding Properties}"
+                  SelectedValuePath="Value"
+                  SelectedValue="{Binding Path=SelectedIndex}">
+                  >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Label Grid.Column="1" 
+                               Content="{Binding Path=Name, Mode=OneWay}"
+                               Style="{StaticResource BaseLabelStyle}"
+                           />
+                        <Viewbox Grid.Column="0" Height="25" Margin="5">
+                            <CheckBox HorizontalAlignment="Center"
+                                      IsChecked="{Binding Path=IsLogged, Mode=OneWay}"
+                             />    
+                        </Viewbox>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>-->
+    </Grid>
+</Window>

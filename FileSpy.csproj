@@ -13,6 +13,8 @@
   <ItemGroup>
     <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1000" />
+    <PackageReference Include="Prism.Core" Version="7.2.0.1422" />
   </ItemGroup>
 
   <ItemGroup>

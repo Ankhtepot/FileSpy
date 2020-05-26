@@ -5,10 +5,17 @@
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileSpy.View"
+        xmlns:converters="clr-namespace:FileSpy.ViewModel.Converters"
         mc:Ignorable="d"
         Title="File Spy" Height="450" Width="800"
         SizeToContent="WidthAndHeight"
+        ResizeMode="CanMinimize"
         >
+
+    <Window.Resources>
+        <converters:WorkingStatusToBoolConverter x:Key="WorkingStatusToBoolConverter"/>
+    </Window.Resources>
+    
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -43,14 +50,17 @@
         <TextBox Grid.Row="1" Grid.Column="1"
                  Width="200" Margin="5"
                  Style="{StaticResource BaseTextBoxStyle}"
+                 Text="{Binding SearchPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  />
         <Label Content="Logged Metadata:"
                Grid.Row="2" Grid.Column="0"
                Style="{StaticResource BaseLabelStyle}"
                />
-        <TextBox Grid.Row="2" Grid.Column="1"
-                 Width="200" Margin="5"
-                 Style="{StaticResource BaseTextBoxStyle}"
+        <Button Grid.Column="1" Grid.Row="2" Width="200"
+                HorizontalAlignment="Left"
+                Content="Set Logged Properties"
+                Style="{StaticResource BaseButtonStyle}"
+                Command="{Binding SetLoggingPropertiesCommand}"
                  />
         <Label Content="Output File Name:"
                Grid.Row="3" Grid.Column="0"
@@ -59,6 +69,7 @@
         <TextBox Grid.Row="3" Grid.Column="1"
                  Width="200" Margin="5"
                  Style="{StaticResource BaseTextBoxStyle}"
+                 Text="{Binding OutputFileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  />
         <Label Content="Output Folder:"
                Grid.Row="4" Grid.Column="0"
@@ -83,18 +94,22 @@
                 </Grid.ColumnDefinitions>
 
                 <Button Content="Scan" Grid.Column="0" 
-                        FontSize="25" Margin="5"
-                        Width="100"/>
+                        Style="{StaticResource BaseButtonStyle}"
+                        Width="100"
+                        Command="{Binding ScanRootDirectoryCommandDel}"
+                        />
                 <fa:ImageAwesome Icon="Cog" Width="30"
                                  Grid.Column="1"
+                                 Spin="{Binding WorkingStatus, Converter={StaticResource WorkingStatusToBoolConverter}}"
                          HorizontalAlignment="center"
                          />
                 <Label Content="Task:" Style="{StaticResource BaseLabelStyle}"
                    HorizontalAlignment="Center"
                    Grid.Column="2"
                    />
-                <Label Content="No task in Progress" Style="{StaticResource BaseLabelStyle}" HorizontalAlignment="Left"
-                    Grid.Row="0" Grid.Column="3"/>
+                <Label Content="{Binding ProgressStatus}"
+                       Style="{StaticResource BaseLabelStyle}" HorizontalAlignment="Left"
+                       Grid.Row="0" Grid.Column="3"/>
             </Grid>
         </Border>
     </Grid>

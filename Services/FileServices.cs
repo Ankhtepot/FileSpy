@@ -1,8 +1,10 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using FileSpy.Model;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace FileSpy.Services
 {
-    public class FileSystemServices
+    public class FileServices
     {
         public static string QueryUserForPath(string initialDirectory = "")
         {
@@ -77,14 +79,8 @@ namespace FileSpy.Services
 
             IEnumerable<string> directories = getDirectoriesFromPath(rootPath, worker) ?? new List<string>();
 
-            //if(directories == null)
-            //{
-            //    directories = new List<string>();
-            //}
-
             foreach (var directory in directories.Where(dir => !Regex.Match(dir, "\\.git").Success))
             {
-                //Console.WriteLine("Scanning directory: " + directory);
                 var recursiveYield = GetDirectoriesFromRootPath(directory, worker);
                 directories = recursiveYield != null
                     ? directories.Concat(recursiveYield).ToList()
@@ -107,7 +103,7 @@ namespace FileSpy.Services
             {
                 directories = Directory.GetDirectories(path).ToList();
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 Console.WriteLine($"Insufficient rights to scan direcotry at \"{path}\".");
             }
@@ -115,25 +111,37 @@ namespace FileSpy.Services
             return directories;
         }
 
-        public static void ScanDirectory(string rootPath, string path)
+        public static List<string> ScanDirectory(string rootPath, string path, string regexPattern = "")
         {
-            ObservableCollection<string> csvFiles = null;
+            List<string> foundFiles = null;
+            var searchPattern = regexPattern == null ? "*." : regexPattern;
             try
             {
-                csvFiles = new ObservableCollection<string>(
-                       Directory.GetFiles(path, "*.csv", SearchOption.TopDirectoryOnly));
+                foundFiles = new List<string>(Directory.GetFiles(path, searchPattern, SearchOption.TopDirectoryOnly));
             }
             catch (UnauthorizedAccessException)
             {
                 Console.WriteLine($"Insufficient rights to read all files in \"{path}\".");
-            }
+            }    
+            catch (Exception e)
+            {
+                Console.WriteLine($"Unknown error while reading a directory: {e.Message}");
+            }            
 
-            var directoryPath = Regex.Replace(path, Regex.Escape(rootPath), ".");
-            //directoryPath = directoryPath == "." ? Constants.ROOT_DIRECTORY : directoryPath;
+            return (foundFiles != null && foundFiles.Count > 0)
+                ? foundFiles
+                : null;
+        }
 
-            //return (csvFiles != null && csvFiles.Count > 0)
-            //    ? new DirectoryWithCsv(directoryPath, csvFiles)
-            //    : null;
+        internal static FileVersionInfo GetFileInfos(string filePath)
+        {
+            return File.Exists(filePath) ? FileVersionInfo.GetVersionInfo(filePath) : null;
+
+            //var fileVersion = loggedProperties.LogFileVersion ? fileInfo.FileVersion : "";
+            //var productVersion = loggedProperties.LogProductVersion ? fileInfo.ProductVersion : "";
+
+            //var relativePath = Regex.Replace(filePath, Regex.Escape(rootPath), ".");
+            //relativePath = relativePath == "." ? "Root Directory" : relativePath;
         }
     }
 }
