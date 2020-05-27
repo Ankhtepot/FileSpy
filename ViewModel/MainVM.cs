@@ -1,22 +1,17 @@
 ﻿using FileSpy.Services;
-using FileSpy.ViewModel.Commands;
 using JetBrains.Annotations;
 using System;
 using FileSpy.Model;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using static FileSpy.Model.Enums;
-using FileSpy.Model.Interfaces;
 using FileSpy.View;
-using Microsoft.WindowsAPICodePack.Shell;
 using Prism.Commands;
 using System.IO;
-using CSVEditor.ViewModel.BackgroundWorkers;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
+using System.Text;
 
 namespace FileSpy.ViewModel
 {
@@ -31,7 +26,7 @@ namespace FileSpy.ViewModel
             set
             {
                 loggedProperties = value;
-                ScanRootDirectoryCommandDel.RaiseCanExecuteChanged();
+                ScanRootDirectoryCommand.RaiseCanExecuteChanged();
                 OnPropertyChanged();
             }
         }
@@ -43,19 +38,20 @@ namespace FileSpy.ViewModel
             set
             {
                 rootPath = value;
-                ScanRootDirectoryCommandDel.RaiseCanExecuteChanged();
+                ScanRootDirectoryCommand.RaiseCanExecuteChanged();
+                OutputFileName = Directory.Exists(value) ? new DirectoryInfo(value).Name : "";
                 OnPropertyChanged();
             }
         }
 
-        private string destinationPath;
-        public string DestinationPath
+        private string outputPath;
+        public string OutputPath
         {
-            get { return destinationPath; }
+            get { return outputPath; }
             set
             {
-                destinationPath = value;
-                ScanRootDirectoryCommandDel.RaiseCanExecuteChanged();
+                outputPath = value;
+                ScanRootDirectoryCommand.RaiseCanExecuteChanged();
                 OnPropertyChanged();
             }
         }
@@ -74,13 +70,21 @@ namespace FileSpy.ViewModel
             set
             {
                 outputFileName = value;
-                ScanRootDirectoryCommandDel.RaiseCanExecuteChanged();
+                ScanRootDirectoryCommand.RaiseCanExecuteChanged();
                 OnPropertyChanged();
             }
         }
 
-        private string progressStatus;
+        private char delimiter;
 
+        public char Delimiter
+        {
+            get { return delimiter; }
+            set { delimiter = value; }
+        }
+
+
+        private string progressStatus;
         public string ProgressStatus
         {
             get { return progressStatus; }
@@ -88,61 +92,52 @@ namespace FileSpy.ViewModel
         }
 
 
-        private WorkStatus workingStatus;
-        public WorkStatus WorkingStatus
+        private bool isWorking;
+        public bool IsWorking
         {
-            get { return workingStatus; }
+            get { return isWorking; }
             set
             {
-                workingStatus = value;
-                ScanRootDirectoryCommandDel.RaiseCanExecuteChanged();
+                isWorking = value;
+                ScanRootDirectoryCommand.RaiseCanExecuteChanged();
                 OnPropertyChanged();
             }
         }
 
-        private IWorker activeWorker;
-        public IWorker ActiveWorker
-        {
-            get { return activeWorker; }
-            set { activeWorker = value; }
-        }
-
-        public GetRootPathCommand GetRootPathCommand { get; set; }
-        public GetDestinationPathCommand GetDestinationPathCommand { get; set; }
-        public SetLoggingPropertiesCommand SetLoggingPropertiesCommand { get; set; }
-
-        public DelegateCommand ScanRootDirectoryCommandDel { get; }
+        public DelegateCommand GetRootPathCommand { get; set; }
+        public DelegateCommand GetDestinationPathCommand { get; set; }
+        public DelegateCommand SetLoggingPropertiesCommand { get; set; }
+        public DelegateCommand ScanRootDirectoryCommand { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public MainVM()
         {
-            GetRootPathCommand = new GetRootPathCommand(this);
-            GetDestinationPathCommand = new GetDestinationPathCommand(this);
-            SetLoggingPropertiesCommand = new SetLoggingPropertiesCommand(this);
-            ScanRootDirectoryCommandDel = new DelegateCommand(ScanRootDirectory, CanScanRootDirectory);
+            GetRootPathCommand = new DelegateCommand(GetRootPath);
+            GetDestinationPathCommand = new DelegateCommand(GetDestinationPath);
+            SetLoggingPropertiesCommand = new DelegateCommand(SetLoggingProperties);
+            ScanRootDirectoryCommand = new DelegateCommand(ScanRootDirectory, CanScanRootDirectory);
 
             LoggedProperties = new LoggedProperties();
             LoggedProperties.SetAllPropertiesTo(true);
-
             ProgressStatus = DEFAULT_PROGRESS_STATUS;
+            Delimiter = ',';
         }
 
         public void GetRootPath()
         {
-            RootPath = FileServices.QueryUserForPath();
+            RootPath = FileServices.QueryUserForPath(RootPath);
         }
 
         public void GetDestinationPath()
         {
-            DestinationPath = FileServices.QueryUserForPath(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            OutputPath = FileServices.QueryUserForPath(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
         }
 
         public async void ScanRootDirectory()
         {
-            Console.WriteLine("ScanRootDirectory executed");
             ProgressStatus = "Reading Directories...";
-            WorkingStatus = WorkStatus.Working;
+            IsWorking = true;
             var directories = await Task.Run(() => GetDirectoriesTask());
             var foundDirectoryCount = directories.Count;
 
@@ -162,19 +157,24 @@ namespace FileSpy.ViewModel
 
             progress = new Progress<int>(fileNr =>
             {
-                ProgressStatus = $"Generating Excel from file: {fileNr} / {foundDirectoryCount}";
+                ProgressStatus = $"Generating Csv from file: {fileNr} / {foundFilesCount}";
             });
 
-            WorkingStatus = WorkStatus.Idle;
+            var csvFileString = await Task.Run(() => GetCsvFileStringTask(infos, progress));
+
+            FileServices.SaveCsvString(OutputFileName, OutputPath, csvFileString);
+
+            IsWorking = false;
+            ProgressStatus = $"Processed {foundFilesCount} files.";
         }
 
         private bool CanScanRootDirectory()
         {
             return Directory.Exists(RootPath)
-                && Directory.Exists(DestinationPath)
+                && Directory.Exists(OutputPath)
                 && (LoggedProperties.LogProductVersion || LoggedProperties.LogFileVersion)
                 && !string.IsNullOrEmpty(OutputFileName)
-                && WorkingStatus != WorkStatus.Working;
+                && !IsWorking;
         }
 
         public void SetLoggingProperties()
@@ -205,7 +205,7 @@ namespace FileSpy.ViewModel
                var foundFiles = new List<string>();
                for (int i = 0; i < directories.Count; i++)
                {
-                   var files = await Task.Run(() => FileServices.ScanDirectory(rootPath, directories[i], SearchPattern));
+                   var files = await Task.Run(() => FileServices.ScanDirectory(directories[i], SearchPattern));
 
                    if(files != null && files.Count > 0)
                    {
@@ -246,6 +246,40 @@ namespace FileSpy.ViewModel
            });
 
             return result.Result;
+        }
+
+        private string GetCsvFileStringTask(List<FileVersionInfo> infos, IProgress<int> progress)
+        {
+            var result = Task.Run(async () =>
+            {
+                var csvFileStringBuilder = new StringBuilder($"{CreateHeaderLineForCsv(LoggedProperties, Delimiter)}\n");
+                for (int i = 0; i < infos.Count; i++)
+                {
+                    var result = await Task.Run(() => StringServices.TransformInfoToCsvLineString(infos[i], RootPath, LoggedProperties, Delimiter));
+
+                    if (result != null)
+                    {
+                        csvFileStringBuilder.Append(result + '\n');
+                    }
+
+                    if (progress != null)
+                    {
+                        progress.Report(i + 1);
+                    }
+                }
+                return csvFileStringBuilder;
+            });
+
+            return result.Result.ToString();
+        }
+
+        private string CreateHeaderLineForCsv(LoggedProperties loggedProperties, char delimiter)
+        {
+            var result = new StringBuilder("Relative Path" + delimiter);
+            if (loggedProperties.LogFileVersion) result.Append("File Version" + delimiter);
+            if (loggedProperties.LogProductVersion) result.Append("Product Version" + delimiter);
+
+            return StringServices.RemoveRedundantDelimiter(result.ToString(), delimiter);
         }
 
         [NotifyPropertyChangedInvocator]

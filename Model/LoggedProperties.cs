@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +9,7 @@ using System.Text;
 
 namespace FileSpy.Model
 {
+    [AddINotifyPropertyChangedInterface]
     public class LoggedProperties : INotifyPropertyChanged
     {
         //public bool LogFileVersion { get; set; }
@@ -42,7 +44,6 @@ namespace FileSpy.Model
                 OnPropertyChanged(); 
             }
         }
-
 
         public LoggedProperties()
         {

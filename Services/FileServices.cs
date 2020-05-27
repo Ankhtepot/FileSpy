@@ -1,13 +1,10 @@
-﻿using FileSpy.Model;
-using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace FileSpy.Services
@@ -18,7 +15,7 @@ namespace FileSpy.Services
         {
             var dialog = new CommonOpenFileDialog();
             dialog.IsFolderPicker = true;
-            if(!string.IsNullOrEmpty(initialDirectory))
+            if(!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory))
             {
                 dialog.InitialDirectory = initialDirectory;
             }
@@ -39,7 +36,7 @@ namespace FileSpy.Services
             }
             else
             {
-                return "No root path set.";
+                return "No path was set.";
             }
         }
 
@@ -111,10 +108,10 @@ namespace FileSpy.Services
             return directories;
         }
 
-        public static List<string> ScanDirectory(string rootPath, string path, string regexPattern = "")
+        public static List<string> ScanDirectory(string path, string regexPattern = "")
         {
             List<string> foundFiles = null;
-            var searchPattern = regexPattern == null ? "*." : regexPattern;
+            var searchPattern = regexPattern == null ? "*.*" : regexPattern;
             try
             {
                 foundFiles = new List<string>(Directory.GetFiles(path, searchPattern, SearchOption.TopDirectoryOnly));
@@ -136,12 +133,23 @@ namespace FileSpy.Services
         internal static FileVersionInfo GetFileInfos(string filePath)
         {
             return File.Exists(filePath) ? FileVersionInfo.GetVersionInfo(filePath) : null;
+        }        
 
-            //var fileVersion = loggedProperties.LogFileVersion ? fileInfo.FileVersion : "";
-            //var productVersion = loggedProperties.LogProductVersion ? fileInfo.ProductVersion : "";
+        public static bool SaveCsvString(string fileName, string path, string text)
+        {
+            var fullPath = Path.Combine(path, fileName + ".csv");
 
-            //var relativePath = Regex.Replace(filePath, Regex.Escape(rootPath), ".");
-            //relativePath = relativePath == "." ? "Root Directory" : relativePath;
+            try
+            {
+                File.WriteAllText(fullPath, text);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error saving CSV file: {e.Message}");
+                return false;
+            }
+
+            return true;
         }
     }
 }
