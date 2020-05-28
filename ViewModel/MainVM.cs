@@ -56,12 +56,20 @@ namespace FileSpy.ViewModel
             }
         }
 
-        private string searchPattern;
-        public string SearchPattern
+        private string fileSearchPatterns;
+        public string FileSearchPatterns
         {
-            get { return searchPattern; }
-            set { searchPattern = value; OnPropertyChanged(); }
+            get { return fileSearchPatterns; }
+            set { fileSearchPatterns = value; OnPropertyChanged(); }
         }
+
+        private string directorySearchPatterns;
+        public string DirectorySearchPatterns
+        {
+            get { return directorySearchPatterns; }
+            set { directorySearchPatterns = value; }
+        }
+
 
         private string outputFileName;
         public string OutputFileName
@@ -119,7 +127,7 @@ namespace FileSpy.ViewModel
             ScanRootDirectoryCommand = new DelegateCommand(ScanRootDirectory, CanScanRootDirectory);
 
             LoggedProperties = new LoggedProperties();
-            LoggedProperties.SetAllPropertiesTo(true);
+            LoggedProperties.PropertyChanged += (sender, e) => ScanRootDirectoryCommand.RaiseCanExecuteChanged();
             ProgressStatus = DEFAULT_PROGRESS_STATUS;
             Delimiter = ',';
         }
@@ -148,6 +156,13 @@ namespace FileSpy.ViewModel
 
             var files = await Task.Run(() => GetFilesTask(directories, progress));
             var foundFilesCount = files.Count;
+
+            if(foundFilesCount < 1)
+            {
+                ProgressStatus = "No files matching the criteria found.";
+                IsWorking = false;
+                return;
+            }
 
             progress = new Progress<int>(fileNr => {
                 ProgressStatus = $"Reading File Informations: {fileNr} / {foundFilesCount}";
@@ -182,16 +197,13 @@ namespace FileSpy.ViewModel
             Console.WriteLine("SetLoggingProperties executed");
             var selectPropertiesWindow = new SelectLoggedPropertiesWindow(this);
             selectPropertiesWindow.ShowDialog();
-
-            LoggedProperties.LogFileVersion = selectPropertiesWindow.LogFileVersion;
-            LoggedProperties.LogProductVersion = selectPropertiesWindow.LogProductVersion;
         }
 
         private List<string> GetDirectoriesTask()
         {
             var result = Task.Run(async () =>
             {
-                var asyncResult = await Task.Run(() => FileServices.GetDirectoriesFromRootPath(RootPath));
+                var asyncResult = await Task.Run(() => FileServices.GetDirectoriesFromRootPath(RootPath, DirectorySearchPatterns));
                 return asyncResult;
             });
 
@@ -205,7 +217,7 @@ namespace FileSpy.ViewModel
                var foundFiles = new List<string>();
                for (int i = 0; i < directories.Count; i++)
                {
-                   var files = await Task.Run(() => FileServices.ScanDirectory(directories[i], SearchPattern));
+                   var files = await Task.Run(() => FileServices.ScanDirectory(directories[i], FileSearchPatterns));
 
                    if(files != null && files.Count > 0)
                    {

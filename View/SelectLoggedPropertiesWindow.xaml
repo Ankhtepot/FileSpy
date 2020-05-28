@@ -40,31 +40,5 @@
                       IsChecked="{Binding LogProductVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       />
         </Viewbox> 
-        <!--<ListView x:Name="MainListView"
-                  ItemsSource="{Binding Properties}"
-                  SelectedValuePath="Value"
-                  SelectedValue="{Binding Path=SelectedIndex}">
-                  >
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <Label Grid.Column="1" 
-                               Content="{Binding Path=Name, Mode=OneWay}"
-                               Style="{StaticResource BaseLabelStyle}"
-                           />
-                        <Viewbox Grid.Column="0" Height="25" Margin="5">
-                            <CheckBox HorizontalAlignment="Center"
-                                      IsChecked="{Binding Path=IsLogged, Mode=OneWay}"
-                             />    
-                        </Viewbox>
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>-->
     </Grid>
 </Window>

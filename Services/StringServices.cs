@@ -33,5 +33,18 @@ namespace FileSpy.Services
 
             return text;
         }
+
+        public static bool IsTextIncludingPatterns(string text, string[] searchPatterns)
+        {
+            foreach (var pattern in searchPatterns)
+            {
+                if (Regex.Match(text, pattern).Success)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

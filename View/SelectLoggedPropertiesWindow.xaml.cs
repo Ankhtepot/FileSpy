@@ -24,44 +24,12 @@ namespace FileSpy.View
     {
         private MainVM MainVM;
 
-        private LoggedProperties properties;
-        public LoggedProperties Properties
-        {
-            get { return properties; }
-            set 
-            {
-                properties = value;
-                OnPropertyChanged(); 
-            }
-        }
-
-        private bool logProductVersion;
-
-        public bool LogProductVersion
-        {
-            get { return logProductVersion; }
-            set { logProductVersion = value; Properties.LogProductVersion = value; OnPropertyChanged(nameof(Properties)); }
-        }
-
-        private bool logFileVersion;
-
-        public bool LogFileVersion
-        {
-            get { return logFileVersion; }
-            set { logFileVersion = value; Properties.LogFileVersion = value; OnPropertyChanged(); }
-        }
-
-
         public SelectLoggedPropertiesWindow(MainVM mainVM)
         {
             InitializeComponent();
             MainVM = mainVM ?? throw new ArgumentNullException(nameof(mainVM));
-            Properties = MainVM.LoggedProperties;
 
-            LogFileVersion = Properties.LogFileVersion;
-            LogProductVersion = Properties.LogProductVersion;
-
-            TopContainer.DataContext = this;
+            TopContainer.DataContext = MainVM.LoggedProperties;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
