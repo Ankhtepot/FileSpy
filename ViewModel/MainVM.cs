@@ -19,13 +19,13 @@ namespace FileSpy.ViewModel
     {
         public const string DEFAULT_PROGRESS_STATUS = "No task in progress.";
 
-        private LoggedProperties loggedProperties;
-        public LoggedProperties LoggedProperties
+        private LoggingOptions loggingOptions;
+        public LoggingOptions LoggingOptions
         {
-            get { return loggedProperties; }
+            get { return loggingOptions; }
             set
             {
-                loggedProperties = value;
+                loggingOptions = value;
                 ScanRootDirectoryCommand.RaiseCanExecuteChanged();
                 OnPropertyChanged();
             }
@@ -126,8 +126,8 @@ namespace FileSpy.ViewModel
             SetLoggingPropertiesCommand = new DelegateCommand(SetLoggingProperties);
             ScanRootDirectoryCommand = new DelegateCommand(ScanRootDirectory, CanScanRootDirectory);
 
-            LoggedProperties = new LoggedProperties();
-            LoggedProperties.PropertyChanged += (sender, e) => ScanRootDirectoryCommand.RaiseCanExecuteChanged();
+            LoggingOptions = new LoggingOptions();
+            LoggingOptions.PropertyChanged += (sender, e) => ScanRootDirectoryCommand.RaiseCanExecuteChanged();
             ProgressStatus = DEFAULT_PROGRESS_STATUS;
             Delimiter = ',';
         }
@@ -177,7 +177,7 @@ namespace FileSpy.ViewModel
 
             var csvFileString = await Task.Run(() => GetCsvFileStringTask(infos, progress));
 
-            FileServices.SaveCsvString(OutputFileName, OutputPath, csvFileString);
+            FileServices.SaveCsvString(OutputFileName, OutputPath, csvFileString, LoggingOptions.AppendInsteadOfRewrite);
 
             IsWorking = false;
             ProgressStatus = $"Processed {foundFilesCount} files.";
@@ -187,7 +187,7 @@ namespace FileSpy.ViewModel
         {
             return Directory.Exists(RootPath)
                 && Directory.Exists(OutputPath)
-                && (LoggedProperties.LogProductVersion || LoggedProperties.LogFileVersion)
+                && (LoggingOptions.LogProductVersion || LoggingOptions.LogFileVersion)
                 && !string.IsNullOrEmpty(OutputFileName)
                 && !IsWorking;
         }
@@ -264,10 +264,11 @@ namespace FileSpy.ViewModel
         {
             var result = Task.Run(async () =>
             {
-                var csvFileStringBuilder = new StringBuilder($"{CreateHeaderLineForCsv(LoggedProperties, Delimiter)}\n");
+                var csvFileStringBuilder = new StringBuilder($"{CreateHeaderLineForCsv(LoggingOptions, Delimiter)}\n");
+
                 for (int i = 0; i < infos.Count; i++)
                 {
-                    var result = await Task.Run(() => StringServices.TransformInfoToCsvLineString(infos[i], RootPath, LoggedProperties, Delimiter));
+                    var result = await Task.Run(() => StringServices.TransformInfoToCsvLineString(infos[i], RootPath, LoggingOptions, Delimiter));
 
                     if (result != null)
                     {
@@ -285,7 +286,7 @@ namespace FileSpy.ViewModel
             return result.Result.ToString();
         }
 
-        private string CreateHeaderLineForCsv(LoggedProperties loggedProperties, char delimiter)
+        private string CreateHeaderLineForCsv(LoggingOptions loggedProperties, char delimiter)
         {
             var result = new StringBuilder("Relative Path" + delimiter);
             if (loggedProperties.LogFileVersion) result.Append("File Version" + delimiter);

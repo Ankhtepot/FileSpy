@@ -29,7 +29,7 @@ namespace FileSpy.View
             InitializeComponent();
             MainVM = mainVM ?? throw new ArgumentNullException(nameof(mainVM));
 
-            TopContainer.DataContext = MainVM.LoggedProperties;
+            TopContainer.DataContext = MainVM.LoggingOptions;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -49,9 +49,11 @@ namespace FileSpy.Services
 
             var searchPatterns = directorySearchPatterns?.Split('|') ?? new string[] { "" };
 
-            IEnumerable<string> directories = getDirectoriesFromPath(rootPath, worker) ?? new List<string>();
+            List<string> directories = getDirectoriesFromPath(rootPath, worker) ?? new List<string>();
 
-            foreach (var directory in directories.Where(dir => StringServices.IsTextIncludingPatterns(dir, searchPatterns)))
+            directories = directories.Where(dir => StringServices.IsTextIncludingPatterns(dir, searchPatterns)).ToList();
+
+            foreach (var directory in directories)
             {
                 var recursiveYield = GetDirectoriesFromRootPath(directory, directorySearchPatterns, worker);
                 directories = recursiveYield != null
@@ -91,13 +93,19 @@ namespace FileSpy.Services
             return File.Exists(filePath) ? FileVersionInfo.GetVersionInfo(filePath) : null;
         }        
 
-        public static bool SaveCsvString(string fileName, string path, string text)
+        public static bool SaveCsvString(string fileName, string path, string text, bool append = false)
         {
             var fullPath = Path.Combine(path, fileName + ".csv");
 
             try
             {
-                File.WriteAllText(fullPath, text);
+                if (append) {
+                    File.AppendAllText(fullPath, '\n' + text);
+                }
+                else
+                {
+                    File.WriteAllText(fullPath, text);
+                }
             }
             catch (Exception e)
             {

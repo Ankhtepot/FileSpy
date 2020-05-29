@@ -10,10 +10,9 @@ using System.Text;
 namespace FileSpy.Model
 {
     [AddINotifyPropertyChangedInterface]
-    public class LoggedProperties : INotifyPropertyChanged
+    public class LoggingOptions : INotifyPropertyChanged
     {
         private bool logFileVersion;
-
         public bool LogFileVersion
         {
             get { return logFileVersion; }
@@ -25,7 +24,6 @@ namespace FileSpy.Model
         }
 
         private bool logProductVersion;
-
         public bool LogProductVersion
         {
             get { return logProductVersion; }
@@ -36,10 +34,19 @@ namespace FileSpy.Model
             }
         }
 
-        public LoggedProperties()
+        private bool appendInsteadOfRewrite;
+        public bool AppendInsteadOfRewrite
+        {
+            get { return appendInsteadOfRewrite; }
+            set { appendInsteadOfRewrite = value; }
+        }
+
+
+        public LoggingOptions()
         {
             LogFileVersion = true;
             LogProductVersion = true;
+            AppendInsteadOfRewrite = false;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

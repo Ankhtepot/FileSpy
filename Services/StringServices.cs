@@ -8,7 +8,7 @@ namespace FileSpy.Services
 {
     public class StringServices
     {
-        internal static string TransformInfoToCsvLineString(FileVersionInfo info, string rootPath, LoggedProperties loggedProps, char delimiter)
+        internal static string TransformInfoToCsvLineString(FileVersionInfo info, string rootPath, LoggingOptions loggedProps, char delimiter)
         {
             var result = new StringBuilder($"{GetRelativePathFromRootPath(info.FileName, rootPath)}{delimiter}");
 
