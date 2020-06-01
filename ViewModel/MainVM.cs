@@ -124,7 +124,7 @@ namespace FileSpy.ViewModel
             GetRootPathCommand = new DelegateCommand(GetRootPath);
             GetDestinationPathCommand = new DelegateCommand(GetDestinationPath);
             SetLoggingPropertiesCommand = new DelegateCommand(SetLoggingProperties);
-            ScanRootDirectoryCommand = new DelegateCommand(ScanRootDirectory, CanScanRootDirectory);
+            ScanRootDirectoryCommand = new DelegateCommand(ScanRootDirectory, ScanRootDirectory_CanExecute);
 
             LoggingOptions = new LoggingOptions();
             LoggingOptions.PropertyChanged += (sender, e) => ScanRootDirectoryCommand.RaiseCanExecuteChanged();
@@ -183,7 +183,7 @@ namespace FileSpy.ViewModel
             ProgressStatus = $"Processed {foundFilesCount} files.";
         }
 
-        private bool CanScanRootDirectory()
+        private bool ScanRootDirectory_CanExecute()
         {
             return Directory.Exists(RootPath)
                 && Directory.Exists(OutputPath)
