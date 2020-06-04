@@ -41,12 +41,17 @@ namespace FileSpy.Model
             set { appendInsteadOfRewrite = value; }
         }
 
-
         public LoggingOptions()
         {
             LogFileVersion = true;
             LogProductVersion = true;
             AppendInsteadOfRewrite = false;
+        }
+
+        public bool IsAnyLoggingSelected()
+        {
+            return LogFileVersion
+                || LogProductVersion;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

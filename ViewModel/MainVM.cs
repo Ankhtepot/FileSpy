@@ -187,7 +187,7 @@ namespace FileSpy.ViewModel
         {
             return Directory.Exists(RootPath)
                 && Directory.Exists(OutputPath)
-                && (LoggingOptions.LogProductVersion || LoggingOptions.LogFileVersion)
+                && LoggingOptions.IsAnyLoggingSelected()
                 && !string.IsNullOrEmpty(OutputFileName)
                 && !IsWorking;
         }
