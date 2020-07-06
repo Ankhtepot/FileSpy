@@ -157,14 +157,15 @@ namespace FileSpy.ViewModel
             var files = await Task.Run(() => GetFilesTask(directories, progress));
             var foundFilesCount = files.Count;
 
-            if(foundFilesCount < 1)
+            if (foundFilesCount < 1)
             {
                 ProgressStatus = "No files matching the criteria found.";
                 IsWorking = false;
                 return;
             }
 
-            progress = new Progress<int>(fileNr => {
+            progress = new Progress<int>(fileNr =>
+            {
                 ProgressStatus = $"Reading File Informations: {fileNr} / {foundFilesCount}";
             });
 
@@ -213,24 +214,24 @@ namespace FileSpy.ViewModel
         private List<string> GetFilesTask(List<string> directories, IProgress<int> progress)
         {
             var result = Task.Run(async () =>
-           {
-               var foundFiles = new List<string>();
-               for (int i = 0; i < directories.Count; i++)
-               {
-                   var files = await Task.Run(() => FileServices.ScanDirectory(directories[i], FileSearchPatterns));
+            {
+                var foundFiles = new List<string>();
+                for (int i = 0; i < directories.Count; i++)
+                {
+                    var files = await Task.Run(() => FileServices.ScanDirectory(directories[i], FileSearchPatterns));
 
-                   if(files != null && files.Count > 0)
-                   {
-                       foundFiles.AddRange(files);
-                   }
+                    if (files != null && files.Count > 0)
+                    {
+                        foundFiles.AddRange(files);
+                    }
 
-                   if (progress != null)
-                   {
-                       progress.Report(i + 1);
-                   }
-               }
-               return foundFiles;
-           });
+                    if (progress != null)
+                    {
+                        progress.Report(i + 1);
+                    }
+                }
+                return foundFiles;
+            });
 
             return result.Result;
         }
@@ -242,14 +243,14 @@ namespace FileSpy.ViewModel
                var receivedInfos = new List<FileVersionInfo>();
                for (int i = 0; i < files.Count; i++)
                {
-                   var result = await Task.Run(() => FileServices.GetFileInfos(files[i])); 
+                   var result = await Task.Run(() => FileServices.GetFileInfos(files[i]));
 
                    if (result != null)
                    {
                        receivedInfos.Add(result);
                    }
 
-                   if(progress != null)
+                   if (progress != null)
                    {
                        progress.Report(i + 1);
                    }

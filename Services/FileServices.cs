@@ -81,7 +81,7 @@ namespace FileSpy.Services
                 Console.WriteLine($"Unknown error while reading a directory: {e.Message}");
             }
 
-            foundFiles = foundFiles.Where(file => StringServices.IsTextIncludingPatterns(file, searchPatterns)).ToList();
+            foundFiles = foundFiles?.Where(file => StringServices.IsTextIncludingPatterns(file, searchPatterns)).ToList();
 
             return (foundFiles != null && foundFiles.Count > 0)
                 ? foundFiles
